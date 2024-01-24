@@ -8,7 +8,7 @@ _Working On: Ingress_
 
 You can customize option in web interface after deploy, but it won't last if container volume is lost.
 
-Make FR for adding more option.
+Make FR for adding more option. You can search available option in [Environment configuration settings](https://docs.mattermost.com/configure/environment-configuration-settings.html).
 
 ## Configuration
 
