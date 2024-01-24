@@ -13,8 +13,10 @@ DEFAULT_LOG_LEVEL="info"
 EXAMPLE_SITE_URL="https://mattermost.example.com"
 
 # Retrieve configuration values
-SITE_URL=$(bashio::config 'site_url')
 LICENSE_FILE=$(bashio::config 'license_file')
+SITE_NAME=$(bashio::config 'site_name')
+SITE_DESCRIPTION=$(bashio::config 'site_description')
+SITE_URL=$(bashio::config 'site_url')
 DB_DRIVER=$(bashio::config 'db_driver')
 DB_HOST=$(bashio::config 'db_host')
 DB_PORT=$(bashio::config 'db_port')
@@ -29,6 +31,7 @@ SSL=$(bashio::config 'ssl')
 CERTFILE=$(bashio::config 'certfile')
 KEYFILE=$(bashio::config 'keyfile')
 LOG_LEVEL=$(bashio::config 'log_level')
+bashio::log.debug "SITE_NAME='$SITE_NAME'"
 bashio::log.info "SITE_URL=$SITE_URL"
 bashio::log.info "LICENSE_FILE=$LICENSE_FILE"
 bashio::log.info "DB_DRIVER=$DB_DRIVER"
@@ -87,6 +90,7 @@ fi
 bashio::log.debug "Symbolic link check completed."
 
 
+
 # ServiceSettings.LicenseFileLocation
 if bashio::config.has_value "license_file"; then
     LICENSE_FILE=$(bashio::config 'license_file')
@@ -106,6 +110,45 @@ else
 fi
 
 
+
+# TeamSettings.SiteName
+if bashio::config.has_value "site_name"; then
+    SITE_NAME=$(bashio::config 'site_name')
+    bashio::log.info "Using given site name: '$SITE_NAME'"
+
+    if [ -f "$APP_DIR/config/config.json" ]; then
+        bashio::log.debug "Found config.json, proceeding with TeamSettings.SiteName fix"
+        jq --arg site_name "$SITE_NAME" '.TeamSettings.SiteName = $site_name' "$APP_DIR/config/config.json" > "$TMP_FILE" && \
+        mv "$TMP_FILE" "$APP_DIR/config/config.json" && \
+        bashio::log.debug "TeamSettings.SiteName set to $SITE_NAME" || \
+        bashio::log.error "Failed to update TeamSettings.SiteName in config.json"
+    else
+        bashio::log.error "config.json not found in $APP_DIR/config"
+    fi
+else
+    bashio::log.notice "Site Name not specified. Preceed with default "Mattermost"..."
+fi
+
+
+
+# TeamSettings.SiteDescription
+if bashio::config.has_value "site_description"; then
+    SITE_DESCRIPTION=$(bashio::config 'site_description')
+    bashio::log.info "Using given site description"
+    bashio::log.info "$SITE_DESCRIPTION"
+
+    if [ -f "$APP_DIR/config/config.json" ]; then
+        bashio::log.debug "Found config.json, proceeding with TeamSettings.SiteDescription fix"
+        jq --arg site_description "$SITE_DESCRIPTION" '.TeamSettings.SiteDescription = $site_description' "$APP_DIR/config/config.json" > "$TMP_FILE" && \
+        mv "$TMP_FILE" "$APP_DIR/config/config.json" && \
+        bashio::log.debug "TeamSettings.SiteDescription set to provided text" || \
+        bashio::log.error "Failed to update TeamSettings.SiteDescription in config.json"
+    else
+        bashio::log.error "config.json not found in $APP_DIR/config"
+    fi
+else
+    bashio::log.notice "Site Description not specified. Proceed with default "Log in"."
+fi
 
 # ServiceSettings.SiteURL
 if bashio::config.has_value "site_url"; then

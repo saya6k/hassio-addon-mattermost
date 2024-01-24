@@ -14,14 +14,6 @@ Make FR for adding more option. You can search available option in [Environment 
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
-### Option: `site_url`
-
-The URL that users use to access Mattermost. The port number is required if it’s not a standard port, such as 80 or 443. This field is required.
-
-Select the Test Live URL button in the System Console to validate the Site URL.
-
-For further information, visit [Site URL](https://docs.mattermost.com/configure/environment-configuration-settings.html#site-url).
-
 ### Option: `license_file`
 
 Should be located in `addon_configs/`.
@@ -31,6 +23,30 @@ Insert your own license file.
 Otherwise, it will install team version.
 
 For further information, visit [License file Location](https://docs.mattermost.com/configure/environment-configuration-settings.html#license-file-location).
+
+### Option: `site_name`
+
+Name of the site shown in login screens and user interface.
+
+String input. Maximum 30 characters. Default is `Mattermost`
+
+For further information, visit [Site name](https://docs.mattermost.com/configure/site-configuration-settings.html#site-name).
+
+### Option: `site_description`
+
+Text displayed above the login form. When not specified, the phrase “Log in” is displayed.
+
+String input.
+
+For further information, visit [Site description](https://docs.mattermost.com/configure/site-configuration-settings.html#site-description).
+
+### Option: `site_url`
+
+The URL that users use to access Mattermost. The port number is required if it’s not a standard port, such as 80 or 443. This field is required.
+
+Select the Test Live URL button in the System Console to validate the Site URL.
+
+For further information, visit [Site URL](https://docs.mattermost.com/configure/environment-configuration-settings.html#site-url).
 
 ### Option: `db_driver`
 

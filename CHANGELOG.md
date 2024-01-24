@@ -1,3 +1,6 @@
+## [0.1.4b1] - 2024-01-24
+- Add Site Name & Description option
+
 ## [0.1.3] - 2024-01-24
 - Update README.md
 
