@@ -1,0 +1,51 @@
+---
+name: Mattermost
+version: 0.1.0
+slug: mattermost
+description: "an open source platform for secure collaboration across the entire software development lifecycle."
+url: "https://github.com/mattermost/mattermost"
+init: false
+arch:
+  - amd64
+  - aarch64
+ports:
+  8065/tcp: null
+ports_description:
+  8065/tcp: Web interface
+panel_icon: mdi:human-male-board-poll
+panel_title: Mattermost
+panel_admin: false  
+ingress: true
+ingress_port: 8065
+options:
+  site_url: https://mattermost.example.com
+  db_driver: postgres
+  db_host: postgres
+  db_port: 5432
+  db_database: mattermost
+  db_user: mmuser
+  db_password: mmuser_password
+  db_parameters_sslmode: disable
+  db_parameters_connection_timeout: 30
+  ssl: false
+  certfile: fullchain.pem
+  keyfile: privkey.pem
+schema:
+  site_url: url
+  license_file: str?
+  db_driver: list(mysql|postgres)
+  db_host: str
+  db_port: port
+  db_database: str
+  db_user: str
+  db_password: password
+  db_parameters_sslmode: list(disable|allow|prefer|require|verify-ca|verify-full)
+  db_parameters_connection_timeout: int
+  plugin_enable_upload: bool?
+  ssl: bool
+  certfile: str?
+  keyfile: str?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+map:
+  - addon_config:rw
+  - ssl

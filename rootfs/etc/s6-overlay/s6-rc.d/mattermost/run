@@ -1,0 +1,258 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Community Add-on: Mattermost
+# an open source platform for secure collaboration across the entire software development lifecycle 
+# ==============================================================================
+bashio::log.info "Starting Mattermost..."
+
+# Define default args
+APP_DIR="/opt/mattermost"
+DEFAULT_DB_DRIVER="postgres"
+DEFAULT_LOG_LEVEL="info"
+EXAMPLE_SITE_URL="https://mattermost.example.com"
+
+# Retrieve configuration values
+SITE_URL=$(bashio::config 'site_url')
+LICENSE_FILE=$(bashio::config 'license_file')
+DB_DRIVER=$(bashio::config 'db_driver')
+DB_HOST=$(bashio::config 'db_host')
+DB_PORT=$(bashio::config 'db_port')
+DB_DATABASE=$(bashio::config 'db_database')
+DB_USER=$(bashio::config 'db_user')
+DB_PASSWORD=$(bashio::config 'db_password')
+DB_PARAMETERS_SSLMODE=$(bashio::config 'db_parameters_sslmode')
+DB_PARAMETERS_CONNECTION_TIMEOUT=$(bashio::config 'db_parameters_connection_timeout')
+PLUGIN_ENABLE_UPLOAD=$(bashio::config 'plugin_enable_upload')
+SSL=$(bashio::config 'ssl')
+CERTFILE=$(bashio::config 'certfile')
+KEYFILE=$(bashio::config 'keyfile')
+LOG_LEVEL=$(bashio::config 'log_level')
+bashio::log.info "SITE_URL=$SITE_URL"
+bashio::log.info "LICENSE_FILE=$LICENSE_FILE"
+bashio::log.info "DB_DRIVER=$DB_DRIVER"
+bashio::log.info "DB_HOST=$DB_HOST"
+bashio::log.info "DB_PORT=$DB_PORT"
+bashio::log.info "DB_DATABASE=$DB_DATABASE"
+bashio::log.info "DB_USER=$DB_USER"
+bashio::log.info "DB_PASSWORD=$DB_PASSWORD"
+bashio::log.info "DB_PARAMETERS_SSLMODE=$DB_PARAMETERS_SSLMODE"
+bashio::log.info "DB_PARAMETERS_CONNECTION_TIMEOUT=$DB_PARAMETERS_CONNECTION_TIMEOUT"
+bashio::log.info "PLUGIN_ENABLE_UPLOAD=$PLUGIN_ENABLE_UPLOAD"
+bashio::log.info "SSL=$SSL"
+bashio::log.info "CERTFILE=$CERTFILE"
+bashio::log.info "KEYFILE=$KEYFILE"
+bashio::log.info "LOG_LEVEL=$LOG_LEVEL"
+
+# Create the /config directory if it doesn't exist
+mkdir -p /config
+
+# Set permissions for the /config directory
+chown -R mattermost:mattermost /config
+chmod -R 750 /config
+
+# Set permissions for the /opt/mattermost directory
+chmod -R 750 /opt/mattermost
+
+# Check if /opt/mattermost/data already exists and is not a symlink
+if [ -d "/opt/mattermost/data" ] && [ ! -L "/opt/mattermost/data" ]; then
+    bashio::log.error "Error: /opt/mattermost/data already exists and is not a symbolic link."
+    exit 1
+fi
+
+# Create a symbolic link from /config to /opt/mattermost/data
+ln -s /config /opt/mattermost/data
+
+# Log the creation of the symlink
+bashio::log.info "Symlinking /config with /opt/mattermost/data"
+
+# Using bashio to log information about the symlink
+bashio::log.info "Checking symbolic link for Mattermost data directory..."
+
+# Verify if /opt/mattermost/data is a symbolic link
+if [ ! -L "/opt/mattermost/data" ]; then
+    bashio::log.error "Error: /opt/mattermost/data is not a symbolic link."
+else
+    bashio::log.info "Verified: /opt/mattermost/data is a symbolic link."
+
+    # Check if the target of the symlink exists and is a directory
+    if [ -d "/opt/mattermost/data" ]; then
+        bashio::log.info "Verified: The target of the symbolic link exists and is a directory."
+    else
+        bashio::log.error "Error: The target of the symbolic link does not exist or is not a directory."
+    fi
+fi
+
+# Inform about the completion of the check
+bashio::log.info "Symbolic link check completed."
+
+
+# ServiceSettings.LicenseFileLocation
+if bashio::config.has_value "license_file"; then
+    LICENSE_FILE=$(bashio::config 'license_file')
+    bashio::log.info "Using given license file: '$LICENSE_FILE'"
+    if [ -f "$APP_DIR/config/config.json" ]; then
+        LICENSE_FILE_LOCATION_FOR_SED="/opt/mattermost/data/$(echo "$LICENSE_FILE" | sed -e 's/[\/&]/\\&/g')"
+        bashio::log.info "Found config.json, proceeding with ServiceSettings.LicenseFileLocation fix"
+        sed -i 's|"LicenseFileLocation": "",|"LicenseFileLocation": "'"$LICENSE_FILE_LOCATION_FOR_SED"'",|' "$APP_DIR/config/config.json" && \
+        bashio::log.info "ServiceSettings.LicenseFileLocation: "addon_config/$LICENSE_FILE"" || \
+        bashio::log.error "Failed to update ServiceSettings.LicenseFileLocation in config.json"
+    else
+    bashio::log.warning "config.json not found in $APP_DIR/config"
+    fi
+
+else
+    LICENSE_FILE=""
+    bashio::log.warning "License File not specified, pass..."
+fi
+
+
+# ServiceSettings.SiteURL
+if bashio::config.has_value "site_url"; then
+    SITE_URL=$(bashio::config 'site_url')
+    bashio::log.info "Using given site url: '$SITE_URL'"
+else
+    SITE_URL=$EXAMPLE_SITE_URL
+    bashio::log.warning "SiteURL not specified, using example site url: '$EXAMPLE_SITE_URL'..."
+fi
+
+if [ -f "$APP_DIR/config/config.json" ]; then
+    SITE_URL_FOR_SED=$(echo "$SITE_URL" | sed -e 's/[\/&]/\\&/g')
+    bashio::log.info "Found config.json, proceeding with ServiceSettings.SiteURL fix"
+    sed -i 's|"SiteURL": "",|"SiteURL": "'"$SITE_URL_FOR_SED"'",|' "$APP_DIR/config/config.json" && \
+    bashio::log.info "ServiceSettings.SiteURL: "$SITE_URL"" || \
+    bashio::log.error "Failed to update ServiceSettings.SiteURL in config.json"
+else
+    bashio::log.warning "config.json not found in $APP_DIR/config"
+fi
+
+# PluginSettings.EnableUploads
+if bashio::config.has_value "plugin_enable_upload"; then
+    PLUGIN_ENABLE_UPLOAD=$(bashio::config 'plugin_enable_upload')
+    bashio::log.info "Using given plugin_enable_upload: '$PLUGIN_ENABLE_UPLOAD'"
+else
+    PLUGIN_ENABLE_UPLOAD=false
+    bashio::log.warning "PluginSettings.EnableUploads not specified, using PluginSettings.EnableUploads: false..."
+fi
+
+if [ -f "$APP_DIR/config/config.json" ]; then
+    bashio::log.info "Found config.json, proceeding with PluginSettings.EnableUploads fix"
+    sed -i 's|"EnableUploads": false,|"EnableUploads": true,|' "$APP_DIR/config/config.json" && \
+    bashio::log.info "PluginSettings.EnableUploads: true" || \
+    bashio::log.error "Failed to update PluginSettings.EnableUploads in config.json"
+else
+    bashio::log.warning "config.json not found in $APP_DIR/config"
+fi
+
+
+# Ingress
+if [ -f "$APP_DIR/config/config.json" ]; then
+    # ServiceSettings.AllowedUntrustedInternalConnections
+    bashio::log.info "Found config.json, proceeding with ServiceSettings.AllowedUntrustedInternalConnections fix"
+    sed -i 's/"AllowedUntrustedInternalConnections": "",/"AllowedUntrustedInternalConnections": "172.30.32.0\/23",/' "$APP_DIR/config/config.json" && \
+    bashio::log.info "ServiceSettings.AllowedUntrustedInternalConnections: "172.30.32.0/23"" || \
+    bashio::log.error "Failed to update ServiceSettings.AllowedUntrustedInternalConnections in config.json"
+
+    # # ServiceSettings.TrustedProxyIPHeader
+    # bashio::log.info "Found config.json, proceeding with ServiceSettings.TrustedProxyIPHeader fix"
+    # sed -i 's/"TrustedProxyIPHeader": [],/"TrustedProxyIPHeader": ["X-Forwarded-For", "X-Real-Ip", "X-Ingress-Path"],/' "$APP_DIR/config/config.json" && \
+    # bashio::log.info "ServiceSettings.TrustedProxyIPHeader set to [\"X-Forwarded-For\", \"X-Real-Ip\", \"X-Ingress-Path\"]" || \
+    # bashio::log.error "Failed to update ServiceSettings.TrustedProxyIPHeader in config.json"
+
+    export GRADIO_ROOT_PATH=$(bashio::addon.ingress_entry)
+    bashio::log.info "Serving app from $GRADIO_ROOT_PATH"
+else
+    bashio::log.warning "config.json not found in $APP_DIR/config"
+fi
+
+
+# DB DRIVER
+if bashio::config.has_value "db_driver"; then
+    DB_DRIVER=$(bashio::config 'db_driver')
+    bashio::log.info "Using chosen database driver: '$DB_DRIVER'"
+else
+    DB_DRIVER=$DEFAULT_DB_DRIVER
+    bashio::log.info "Using default database driver: '$DEFAULT_DB_DRIVER'..."
+fi
+
+if [ -f "$APP_DIR/config/config.json" ]; then
+    bashio::log.info "Found config.json, proceeding with SqlSettings.DriverName fix"
+    sed -i 's/"DriverName": "postgres"/"DriverName": "'"$DB_DRIVER"'"/' "$APP_DIR/config/config.json" && \
+    bashio::log.info "SqlSettings.DriverName: "$DB_DRIVER"" || \
+    bashio::log.error "Failed to update SqlSettings.DriverName in config.json"
+else
+    bashio::log.warning "config.json not found in $APP_DIR/config"
+fi
+
+## Construct DataSource string
+# Construct the DataSource string based on the DB_DRIVER
+if [ "$DB_DRIVER" = "mysql" ]; then
+    # MySQL DataSource format
+    # Adjust MySQL SSL mode settings as per requirement
+    MYSQL_SSL_SETTINGS=""
+    if [ "$DB_PARAMETERS_SSLMODE" = "require" ] || [ "$DB_PARAMETERS_SSLMODE" = "verify-ca" ] || [ "$DB_PARAMETERS_SSLMODE" = "verify-full" ]; then
+        MYSQL_SSL_SETTINGS="&sslmode=required"
+    elif [ "$DB_PARAMETERS_SSLMODE" = "prefer" ] || [ "$DB_PARAMETERS_SSLMODE" = "allow" ]; then
+        MYSQL_SSL_SETTINGS="&sslmode=preferred"
+    elif [ "$DB_PARAMETERS_SSLMODE" = "disable" ]; then
+        MYSQL_SSL_SETTINGS="&sslmode=disabled"
+    fi
+    DB_DATASOURCE="mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?charset=utf8mb4,utf8${MYSQL_SSL_SETTINGS}&connect_timeout=${DB_PARAMETERS_CONNECTION_TIMEOUT}"
+elif [ "$DB_DRIVER" = "postgres" ]; then
+    # PostgreSQL DataSource format
+    # Adjust PostgreSQL TLS settings as per requirement
+    POSTGRES_TLS_SETTINGS=""
+    if [ "$DB_PARAMETERS_SSLMODE" = "require" ]; then
+        POSTGRES_TLS_SETTINGS="&sslmode=require&tls=true"
+    elif [ "$DB_PARAMETERS_SSLMODE" = "skip-verify" ]; then
+        POSTGRES_TLS_SETTINGS="&sslmode=require&tls=skip-verify"
+    else
+        POSTGRES_TLS_SETTINGS="&sslmode=${DB_PARAMETERS_SSLMODE}"
+    fi
+    DB_DATASOURCE="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?${POSTGRES_TLS_SETTINGS}&connect_timeout=${DB_PARAMETERS_CONNECTION_TIMEOUT}"
+else
+    bashio::log.error "Unsupported database driver: $DB_DRIVER"
+    exit 1
+fi
+
+## Escape the DataSource string for sed
+DB_DATASOURCE_FOR_SED=$(echo "$DB_DATASOURCE" | sed -e 's/[\/&]/\\&/g')
+
+
+## Use the escaped string in the sed command to update config.json
+sed -i 's|"DataSource": "[^"]*"|"DataSource": "'"$DB_DATASOURCE_FOR_SED"'"|' $APP_DIR/config/config.json
+
+if [ $? -eq 0 ]; then
+    bashio::log.info "SqlSettings.DataSource: "$DB_DATASOURCE""
+else
+    bashio::log.error "Failed to update SqlSettings.DataSource in config.json"
+fi
+
+
+# SSL
+if [ "$SSL" = true ]; then
+    # Update ServiceSettings.ConnectionSecurity to "TLS"
+    sed -i 's|"ConnectionSecurity": "",|"ConnectionSecurity": "TLS",|' $APP_DIR/config/config.json && \
+    bashio::log.info "ServiceSettings.ConnectionSecurity set to TLS" || \
+    bashio::log.error "Failed to update ServiceSettings.ConnectionSecurity in config.json"
+
+    # Update ServiceSettings.TLSCertFile
+    CERTFILE_FOR_SED="/ssl/$(echo "$CERTFILE" | sed -e 's/[\/&]/\\&/g')"
+    sed -i 's|"TLSCertFile": "",|"TLSCertFile": "'"$CERTFILE_FOR_SED"'",|' $APP_DIR/config/config.json && \
+    bashio::log.info "ServiceSettings.TLSCertFile set to $CERTFILE" || \
+    bashio::log.error "Failed to update ServiceSettings.TLSCertFile in config.json"
+
+    # Update ServiceSettings.TLSKeyFile
+    KEYFILE_FOR_SED="/ssl/$(echo "$KEYFILE" | sed -e 's/[\/&]/\\&/g')"
+    sed -i 's|"TLSKeyFile": "",|"TLSKeyFile": "'"$KEYFILE_FOR_SED"'",|' $APP_DIR/config/config.json && \
+    bashio::log.info "ServiceSettings.TLSKeyFile set to $KEYFILE" || \
+    bashio::log.error "Failed to update ServiceSettings.TLSKeyFile in config.json"
+else
+    bashio::log.info "SSL is not enabled; ServiceSettings.ConnectionSecurity remains disabled"
+fi
+
+
+# Mattermost
+bashio::log.info "Execute Mattermost..."
+# su - mattermost -c 'exec /opt/mattermost/bin/mattermost'
+cd $APP_DIR
+bin/mattermost
