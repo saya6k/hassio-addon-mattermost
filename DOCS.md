@@ -6,6 +6,10 @@ It's primarily aimed for family use.
 
 _Working On: Ingress_
 
+You can customize option in web interface after deploy, but it won't last if container volume is lost.
+
+Make FR for adding more option.
+
 ## Configuration
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
