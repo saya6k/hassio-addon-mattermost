@@ -1,6 +1,10 @@
 # Home Assistant Add-on: Mattermost
 
-This is a web service to print labels on Brother QL label printers.
+This is a Home-Assistant Add-on to serve Mattermost.
+
+It's primarily aimed for family use.
+
+_Working On: Ingress_
 
 ## Configuration
 
@@ -33,7 +37,7 @@ Only Support MariaDB(MySQL) or Postgres.
 
 MariaDB v10+ no longer functions as a MySQL drop-in replacement, and it’s not supported for Mattermost due to the requirement of MySQL 5.7.12. Prior versions of MariaDB were not officially supported but may have functioned in older Mattermost releases. If you are running MariaDB now, migrating from MariaDB to the MySQL equivalent is recommended.
 
-It means core-mariadb is not supported.
+**It means any version of core-mariadb is not supported in Mattermost!**
 
 For further information visit [Driver Name](https://docs.mattermost.com/configure/environment-configuration-settings.html#driver-name).
 
@@ -49,9 +53,15 @@ For further information visit [Driver Name](https://docs.mattermost.com/configur
 
 ### Option: `db_parameters_sslmode`
 
-### Option: `db_parametes_connection_timeout`
+### Option: `db_parameters_connection_timeout`
 
 ### Option: `plugin_enable_upload`
+
+Enable or disable plugin upload.
+
+`false` by default.
+
+Consider increasing `FileSettings.MaxFileSize` if unable to upload.
 
 ### Option: `performance_monitoring_enabled`
 

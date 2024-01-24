@@ -1,6 +1,6 @@
 ---
 name: Mattermost
-version: 0.1.1
+version: 0.1.2
 slug: mattermost
 description: "an open source platform for secure collaboration across the entire software development lifecycle."
 url: "https://github.com/mattermost/mattermost"
