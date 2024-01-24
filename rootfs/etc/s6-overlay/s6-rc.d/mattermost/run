@@ -7,6 +7,7 @@ bashio::log.info "Starting Mattermost..."
 
 # Define default args
 APP_DIR="/opt/mattermost"
+TMP_FILE="/tmp/config.json.tmp"
 DEFAULT_DB_DRIVER="postgres"
 DEFAULT_LOG_LEVEL="info"
 EXAMPLE_SITE_URL="https://mattermost.example.com"
@@ -227,6 +228,23 @@ else
     bashio::log.error "Failed to update SqlSettings.DataSource in config.json"
 fi
 
+
+# MetricsSettings.Enable
+if bashio::config.has_value "performance_monitoring_enabled"; then
+    PERFORMANCE_MONITORING_ENABLED=$(bashio::config 'performance_monitoring_enabled')
+    bashio::log.info "Using performance monitoring enabled: '$PERFORMANCE_MONITORING_ENABLED'"
+    if [ -f "$APP_DIR/config/config.json" ]; then
+        bashio::log.info "Found config.json, proceeding with MetricsSettings.Enable fix"
+        jq --arg pm_enabled "$PERFORMANCE_MONITORING_ENABLED" '.MetricsSettings.Enable = ($pm_enabled | test("true"))' "$APP_DIR/config/config.json" > "$TMP_FILE" && \
+        mv "$TMP_FILE" "$APP_DIR/config/config.json" && \
+        bashio::log.info "MetricsSettings.Enable set to $PERFORMANCE_MONITORING_ENABLED" || \
+        bashio::log.error "Failed to update MetricsSettings.Enable in config.json"
+    else
+        bashio::log.warning "config.json not found in $APP_DIR/config"
+    fi
+else
+    bashio::log.info "Using default value MetricsSettings.Enable: false"
+fi
 
 # SSL
 if [ "$SSL" = true ]; then

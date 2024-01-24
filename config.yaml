@@ -1,6 +1,6 @@
 ---
 name: Mattermost
-version: 0.1.0
+version: 0.1.1
 slug: mattermost
 description: "an open source platform for secure collaboration across the entire software development lifecycle."
 url: "https://github.com/mattermost/mattermost"
@@ -9,9 +9,11 @@ arch:
   - amd64
   - aarch64
 ports:
-  8065/tcp: null
+  8065/tcp: 8065
+  8067/tcp: null
 ports_description:
   8065/tcp: Web interface
+  8067/tcp: Performance Monitoring
 panel_icon: mdi:human-male-board-poll
 panel_title: Mattermost
 panel_admin: false  
@@ -42,6 +44,7 @@ schema:
   db_parameters_sslmode: list(disable|allow|prefer|require|verify-ca|verify-full)
   db_parameters_connection_timeout: int
   plugin_enable_upload: bool?
+  performance_monitoring_enabled: bool?
   ssl: bool
   certfile: str?
   keyfile: str?
