@@ -6,22 +6,22 @@ https://github.com/mattermost/mattermost
 
 It requires external DB, Postgres or MariaDB
 
-_Thanks to everyone having starred my repo! To star it click on the image below, then it will be on top right. Thanks!_
-
-[![Stargazers repo roster for @saya6k/hassio-addons](https://reporoster.com/stars/saya6k/hassio-addons)](https://github.com/saya6k/hassio-addons/stargazers)
-
-
 ## Installation
 
 The installation of this add-on is pretty straightforward and not different in
 comparison to installing any other Hass.io add-on.
 
-1. [Add my Hass.io add-ons repository][repository] to your Hass.io instance.
+
+1. [Add my Hass.io add-ons repository][repository] to your Hass.io instance. [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsaya6k%2Fhassio-addons)
+
 1. Install this add-on.
-1. Make the directory /config/addon_config/mattermost to store your configuration.
 1. Start the add-on.
 1. Check the logs of the add-on to see if everything went well.
-1. Open WebUI at homeassistant:8065
+1. Open WebUI at homeassistant:8065 or use Ingress
 
 
 [repository]: https://github.com/saya6k/hassio-addons
+
+## LICENSE
+
+[License](./LICENSE.txt)

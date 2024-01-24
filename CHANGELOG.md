@@ -1,3 +1,6 @@
+## [0.1.3] - 2024-01-24
+- Update README.md
+
 ## [0.1.2] - 2024-01-24
 - Use `jq` instead of `sed`
 - Update DOCS.md
