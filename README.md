@@ -1,10 +1,11 @@
-# Home assistant add-on: Mattermost
+# Home assistant add-on for Mattermost
 
+Home Assistant Add-on for Mattermost helps you deploy Mattermost as Add-on in Home-Assistant.
 Mattermost is an open source platform for secure collaboration across the entire software development lifecycle..
 
-https://github.com/mattermost/mattermost
-
 It requires external DB, Postgres or MariaDB
+
+https://github.com/mattermost/mattermost
 
 ## Installation
 

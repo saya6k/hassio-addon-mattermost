@@ -1,6 +1,6 @@
 ---
 name: Mattermost
-version: 0.1.4b1
+version: 0.1.4
 slug: mattermost
 description: "an open source platform for secure collaboration across the entire software development lifecycle."
 url: "https://github.com/mattermost/mattermost"
@@ -20,6 +20,7 @@ panel_admin: false
 ingress: true
 ingress_port: 8065
 options:
+  site_name: "Home-Assistant Mattermost"
   site_url: https://mattermost.example.com
   db_driver: postgres
   db_host: postgres
@@ -33,7 +34,7 @@ options:
   certfile: fullchain.pem
   keyfile: privkey.pem
 schema:
-  site_name: str(,30)?
+  site_name: match(^.{0,30}$)
   site_description: str?
   site_url: url
   license_file: str?

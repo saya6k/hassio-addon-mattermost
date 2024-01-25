@@ -1,6 +1,6 @@
-# Home Assistant Add-on: Mattermost
+# Home Assistant Add-on for Mattermost
 
-This is a Home-Assistant Add-on to serve Mattermost.
+This is a Home-Assistant Add-on for Mattermost.
 
 It's primarily aimed for family use.
 

@@ -1,5 +1,7 @@
-## [0.1.4b1] - 2024-01-24
+## [0.1.4] - 2024-01-24
 - Add Site Name & Description option
+- Fix minor errors
+- Changed icon and logo to match [Brand and visual design guidelines](https://handbook.mattermost.com/operations/operations/company-processes/publishing/publishing-guidelines/brand-and-visual-design-guidelines)
 
 ## [0.1.3] - 2024-01-24
 - Update README.md
