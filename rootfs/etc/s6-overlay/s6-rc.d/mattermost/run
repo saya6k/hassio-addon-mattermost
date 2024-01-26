@@ -49,40 +49,57 @@ bashio::log.info "CERTFILE=$CERTFILE"
 bashio::log.info "KEYFILE=$KEYFILE"
 bashio::log.info "LOG_LEVEL=$LOG_LEVEL"
 
-# Create the /config directory if it doesn't exist
+# Ensure /config and its subdirectories exist
 mkdir -p /config
+mkdir -p /config/data
 
 # Set permissions for the /config directory
 chown -R mattermost:mattermost /config
+chown -R mattermost:mattermost /opt/mattermost
 chmod -R 750 /config
-
-# Set permissions for the /opt/mattermost directory
 chmod -R 750 /opt/mattermost
 
-# Check if /opt/mattermost/data already exists and is not a symlink
-if [ -d "/opt/mattermost/data" ] && [ ! -L "/opt/mattermost/data" ]; then
-    bashio::log.error "Error: /opt/mattermost/data already exists and is not a symbolic link."
-    exit 1
+# Check if the configuration is old-style
+if [ ! -f "/config/config/config.json" ]; then
+    bashio::log.notice "Old-style configuration detected. Migrating to new-style..."
+
+    # Move config/* to config/data/
+    if [ -d "/config/data" ]; then
+        bashio::log.error "There is already /config/data directory. Cannot migrate."
+    else
+        mkdir -p /config/data
+        mv /config/* /config/data
+        bashio::log.notice "Migrated config/* to config/data/."
+    fi
+else
 fi
 
-# Create a symbolic link from /config to /opt/mattermost/data
-ln -s /config /opt/mattermost/data
-bashio::log.debug "Symlinking /config with /opt/mattermost/data"
-
-# Using bashio to log information about the symlink
-bashio::log.debug "Checking symbolic link for Mattermost data directory..."
-
-# Verify if /opt/mattermost/data is a symbolic link
+# Symlink /config/data to /opt/mattermost/data
 if [ ! -L "/opt/mattermost/data" ]; then
-    bashio::log.error "Error: /opt/mattermost/data is not a symbolic link."
-else
-    bashio::log.debug "Verified: /opt/mattermost/data is a symbolic link."
-
-    # Check if the target of the symlink exists and is a directory
     if [ -d "/opt/mattermost/data" ]; then
-        bashio::log.debug "Verified: The target of the symbolic link exists and is a directory."
+        echo "Warning: /opt/mattermost/data already exists as a directory. It should be empty."
     else
-        bashio::log.error "Error: The target of the symbolic link does not exist or is not a directory."
+        ln -s /config/data /opt/mattermost/data
+        echo "Symlinked /config/data to /opt/mattermost/data"
+    fi
+else
+    echo "/opt/mattermost/data symlink already exists."
+fi
+
+# Handle /opt/mattermost/config
+if [ -d "/config/config" ]; then
+    bashio::log.notice "Existing configuration detected in /config/config. Using this configuration..."
+    if [ -e "/opt/mattermost/config" ]; then
+        rm -rf /opt/mattermost/config
+    fi
+    ln -s /config/config /opt/mattermost/config
+    bashio::log.info "Successfully symlinked /config/config to /opt/mattermost/config"
+else
+    if [ -d "/opt/mattermost/config" ]; then
+        ln -s /opt/mattermost/config /config/config
+        bashio::log.info "No existing configuration found in /config/config. Symlinked /opt/mattermost/config to /config/config"
+    else
+        bashio::log.error "Error: /opt/mattermost/config does not exist. Cannot create symlink."
     fi
 fi
 

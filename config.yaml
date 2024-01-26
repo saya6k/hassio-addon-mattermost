@@ -1,9 +1,9 @@
 ---
 name: Mattermost
-version: 0.1.4
+version: 0.1.5
 slug: mattermost
 description: "an open source platform for secure collaboration across the entire software development lifecycle."
-url: "https://github.com/mattermost/mattermost"
+url: "https://github.com/saya6k/hassio-addon-mattermost"
 init: false
 arch:
   - amd64
@@ -14,11 +14,11 @@ ports:
 ports_description:
   8065/tcp: Web interface
   8067/tcp: Performance Monitoring
-panel_icon: mdi:human-male-board-poll
-panel_title: Mattermost
-panel_admin: false  
-ingress: true
-ingress_port: 8065
+# panel_icon: mdi:human-male-board-poll
+# panel_title: Mattermost
+# panel_admin: false  
+# ingress: true
+# ingress_port: 8065
 options:
   site_name: "Home-Assistant Mattermost"
   site_url: https://mattermost.example.com

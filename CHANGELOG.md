@@ -1,3 +1,10 @@
+# **READ BEFORE UPDATE !!!**
+## **Now it supports customizing config by your own!**
+### Update will automatically move `addon_config/*` to `addon_config/data/`
+## [0.1.5] - 2024-01-26
+- config directory changes
+- fix LICENSE
+
 ## [0.1.4] - 2024-01-24
 - Add Site Name & Description option
 - Fix minor errors

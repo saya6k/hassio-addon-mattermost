@@ -5,7 +5,10 @@ Mattermost is an open source platform for secure collaboration across the entire
 
 It requires external DB, Postgres or MariaDB
 
-https://github.com/mattermost/mattermost
+https://github.com/mattermost/docker
+
+For issues, please go to [the issue tracker](https://github.com/saya6k/hassio-addons/issues/issues).
+
 
 ## Installation
 
@@ -25,4 +28,4 @@ comparison to installing any other Hass.io add-on.
 
 ## LICENSE
 
-[License](./LICENSE.txt)
+[License](./LICENSE)
